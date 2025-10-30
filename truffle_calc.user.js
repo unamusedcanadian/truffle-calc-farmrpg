@@ -13,8 +13,8 @@
 // ==/UserScript==
 
 // Constant variables
-const DEBUG = false;
-const BENCHMARK = false;
+const DEBUG = true;
+const BENCHMARK = true;
 
 const MAX_PIGS = 500;
 const W_TRUFFLE_DROP = 1/100;
@@ -42,6 +42,7 @@ var calculateNeeded = !(wtc.length && btc.length);
 
 console.log('Truffle Calculator loaded!'); 
 
+// TODO: Benchmark this
 if (DEBUG) {
 	const testDict = { 1: 55, 2: 34, 3: 107 };
 	dataStore(testDict, "test");
@@ -152,10 +153,7 @@ function pigPenParse(elm) {
 // Calculates the rough probability of each truffle type being generated
 // Taken from https://en.wikipedia.org/wiki/Poisson_binomial_distribution
 function calculateProbability(levels, type) {
-  // Might want to set a type for this array
-  // 64 bit floats might be more precise, costs double memory (2kb vs 4kb)
-  // 64 bit might be slower by about a milisecond. Doesn't matter much.
-	const probs = Array.from(levels).map((num) => { return num * type });
+	const probs = Array.from(levels).map(num => num * type);
   let PMF = new Float64Array(1);
   PMF[0] = 1;
 
@@ -172,7 +170,7 @@ function calculateProbability(levels, type) {
   }
   
   // Any chance below CHANCE_CUTOFF is set to 0
-  return PMF.map(num => { return (num > CHANCE_CUTOFF) ? num : 0 }); 
+  return PMF.map(num => num > CHANCE_CUTOFF ? num : 0); 
 }
 
 // When the namepig menu loads
@@ -191,12 +189,14 @@ function namepigLoad(elm) {
 // Would greatly reduce the number of calls we would need to make to
 //  the Greasemonkey API
 
+// TODO: Transition to string storage
+
 // Get all keys with a certain id
-// TODO: Make it actually work
 function dataList(id) {
  	return new Promise((resolve, reject) => {
     GM.listValues()
     	.then((data) => {
+      	// Might be able to simplify this function with more RegExp
       	let index = 0;
       	// This is vulnerable to usage of dashes in id names.
         // Otherwise stable
