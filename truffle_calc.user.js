@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Truffle Calculator
 // @namespace unamusedcanadian
-// @version 0.4.1
+// @version 0.5.1
 // @description Determines approximate range of Truffles user can expect at daily reset.
 // @match https://farmrpg.com/*
 // @grant GM.getValue
@@ -13,7 +13,7 @@
 // Values that can be safely configured (within reason) to alter script behaviour
 const CONFIG = Object.freeze({
     MAX_PIGS: 500, // Keep at or above 0
-    CHANCE_CUTOFF: 1/10000,
+    CHANCE_CUTOFF: 1/1000,
     FLT_TRUNCATE: 3, // Keep at or above 0
     W_TRUFFLE_DROP: 1/100,
     B_TRUFFLE_DROP: 1/300,
@@ -161,26 +161,6 @@ function calculateProbability(levels, type) {
     return PMF.map(num => num > CONFIG.CHANCE_CUTOFF ? num : 0);
 }
 
-// Function to render the graphs
-// Graphics are placeholder right now
-// TODO: Learn how to make actually decent looking HTML
-// TODO: Show the sum of all Truffle-making pig levels
-function renderData(elm, data) {
-    const fragment = document.createDocumentFragment();
-
-    data.forEach((chance, count) => {
-        if (chance > 0) {
-            const newline = document.createElement('br');
-            const text = document.createTextNode(
-                `Chance of ${count} Truffles: ${floatToPercent(chance)}`
-            );
-            fragment.appendChild(newline);
-            fragment.appendChild(text);
-        }
-    });
-    elm.appendChild(fragment);
-}
-
 // Turns array into dictonary string for more space efficient storage
 function arrayEncode(arr) {
     const compress = {};
@@ -202,6 +182,7 @@ function arrayDecode(str) {
         ret.push(new Array(values[i]).fill(k));
     });
 
+    // Probably a better way to do this
     return new Uint8Array(ret.flat());
 }
 
@@ -212,4 +193,186 @@ function floatToPercent(num) {
         .replace(regex,'$1')
         .replace(/\.$/,'');
     return `${base}%`;
+}
+
+// ############################## //
+// Abandon all hope, ye who enter //
+// ############################## //
+
+// Function to render the graphs
+// TODO: Show the sum of all Truffle-making pig levels
+// TODO: Make the code more readable and efficient
+// TODO: Make the graph generate a dynamic Y axis based on average rarity
+// TODO: Show the range of truffles
+// TODO: Maybe find a way to store the result in memory? Maybe?
+// TODO: Have White and Black Truffles have different bar colours
+function renderData(elm, data) {
+    console.time('renderData');
+
+    const max = 0.15; // Currently useless
+
+    const fragment = document.createDocumentFragment();
+
+    const style = document.createElement('style');
+    setStyle(style);
+    fragment.appendChild(style);
+
+    const chart = document.createElement('chart');
+    fragment.appendChild(chart);
+
+    const table = document.createElement('table');
+    chart.appendChild(table);
+
+    const caption = document.createElement('caption');
+    caption.appendChild(document.createTextNode('Chances'));
+    table.appendChild(caption);
+
+    const thead = document.createElement('thead');
+    table.appendChild(thead);
+
+    // Determine how to generate this later
+    yAxisGen(0, 15, 5, 1, thead);
+
+    const tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+
+    // Generates main table
+    data.forEach((chance, count) => {
+        if (chance <= 0) return;
+
+        const tr = document.createElement('tr');
+        tbody.appendChild(tr);
+
+        const th = document.createElement('th');
+        const td = document.createElement('td');
+        // th.appendChild(document.createTextNode(count.toString()));
+        td.setAttribute("style", "height:" + (100 * chance/max) + "%");
+
+        // This order is very important- th must always come before td
+        tr.appendChild(th);
+        tr.appendChild(td);
+    });
+
+    elm.appendChild(fragment);
+    console.timeEnd('renderData');
+}
+
+// TODO: Make this more efficient and readable
+function yAxisGen(min, max, step, gap, head) {
+    const appendMe = [];
+
+    for (i = min; i <= max; i += step) {
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.appendChild(document.createTextNode(`${i}%`));
+        tr.appendChild(th);
+        appendMe.push(tr);
+
+        if (i < max)
+        for (j = 0; j < gap; ++j) {
+            const tr2 = document.createElement('tr');
+            const th2 = document.createElement('th');
+            tr2.appendChild(th2);
+            appendMe.push(tr2);
+        }
+    }
+
+    appendMe.reverse();
+
+    appendMe.forEach(part => {
+        head.appendChild(part);
+    });
+}
+
+// The CSS that creates the entire chart
+// Will probably replace this with style objects instead of adding this to the DOM directly
+function setStyle(style) {
+    style.innerHTML = `
+    chart {
+        --caption-area: 1.5rem;
+        --footer-area: 1.5rem;
+        --ui-colour: white;
+
+        display: block;
+        box-sizing: border-box;
+        container-type: inline-size;
+        background-color: transparent;
+
+        & * { box-sizing: border-box; }
+
+        table {
+            display: grid;
+            grid-template-rows: var(--caption-area) 1fr var(--footer-area);
+            height: 100%;
+            max-height: 225px;
+            max-width: 450px;
+        }
+
+        caption {
+            grid-area: 1 / 1 / 2 / 2;
+            display: block;
+            font-size: 1rem;
+        }
+
+        thead {
+            grid-area: 1 / 1 / 3 / 2;
+            align-items: end;
+            color: var(--ui-colour);
+            display: grid;
+            grid-template-rows: var(--caption-area);
+            grid-auto-rows: 1fr;
+
+            tr {
+                display: contents;
+            }
+
+            th {
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-align: start;
+                border-block-end: 1px solid var(--ui-colour);
+                display: inline grid;
+            }
+        }
+
+        tbody {
+            grid-area: 2 / 1 / 4 / 2;
+            container-type: size;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+            padding-inline: 1rem 0;
+
+            tr {
+                align-items: end;
+                display: grid;
+                overflow-inline: clip;
+                grid-template-rows: 1fr var(--footer-area);
+            }
+
+            th {
+                grid-area: 2 / 1 / 3 / 2;
+                color: var(--ui-colour);
+                border-block-start: 2px solid var(--ui-colour);
+                font-size: 1rem;
+                font-weight: 600;
+                height: var(--footer-area);
+                place-content: center;
+                display: none;
+
+                &:has(+ td:hover) {
+                    display: inline grid;
+                }
+            }
+
+            td {
+                grid-area: 1 / 1 / 2 / 2;
+                background: beige;
+
+                &:hover {
+                    background-color: blue;
+                }
+            }
+        }
+    }`;
 }
