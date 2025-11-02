@@ -74,12 +74,30 @@
 
         tfoot {
             grid-area: 3 / 1 / 4 / 2;
+            padding-inline: 3rem 0;
+
+            align-items: start;
+            color: grey;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+
+            tr {
+                display: contents;
+                border-block-start: 1px solid grey;
+            }
+
+            th {
+                font-size: 10px;
+                font-weight: 600;
+                text-align: center;
+            }
         }
     }
 
 </style>
 <body>
-<chart max=15>
+<chart>
     <table>
         <caption>Truffle Chances</caption>
         <thead>
@@ -125,8 +143,22 @@
         </tbody>
 
         <tfoot>
+            <tr>
+                <th>25</th>
+            </tr>
+            <tr>
+                <th>26</th>
+            </tr>
+            <tr>
+                <th>27</th>
+            </tr>
+            <tr>
+                <th>28</th>
+            </tr>
+            <tr>
+                <th>29</th>
+            </tr>
         </tfoot>
-
     </table>
 </chart>
 </body>
