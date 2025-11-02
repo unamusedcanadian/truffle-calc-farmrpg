@@ -1,0 +1,94 @@
+<DOCTYPE html>
+<html>
+<head>
+<title>Page to test Graphics</title>
+</head>
+<style>
+
+    .chart {
+        aspect-ratio: 16/9;
+        display: grid;
+        grid-template-rows: 97% 3%;
+        grid-template-columns: 3% 97%;
+        align-items: end;
+        overflow: hidden;
+        background-color: lightgray;
+    }
+
+    .xaxis {
+        height: 100%;
+        grid-area: -2 / 1 / -2 / -1;
+        background-color: blue;
+    }
+
+    .yaxis {
+        height: 100%;
+        grid-area: 1 / 1 / 1 / 2;
+        background-color: cyan;
+    }
+
+    .bar-chart {
+        --line-width: 1px;
+        --line-spacing: calc(100% / var(--line-count));
+        --line-color: grey;
+        --line-count: 10;
+
+        height: 100%;
+        grid-area: 1 / 2 / 1 / -1;
+
+        background-image: repeating-linear-gradient(
+            to top,
+            transparent 0 calc(var(--line-spacing) - var(--line-width)),
+            var(--line-color) 0 var(--line-spacing));
+
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+
+        div {
+            flex: 1;
+        }
+    }
+
+    .bar-chart div {
+        background-color: #FF3403;
+        border-left: 1px solid white;
+        border-right: 1px solid white;
+        height: 45%;
+
+        &:hover {
+            background-color: green;
+            height: 75%;
+        }
+    }
+
+</style>
+<body>
+<div class="chart">
+    <div class="xaxis"></div>
+    <div class="yaxis"></div>
+    <div class="bar-chart">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+</body>
+</html>
