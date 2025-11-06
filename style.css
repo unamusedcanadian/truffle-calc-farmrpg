@@ -1,0 +1,99 @@
+/* Readable form of the CSS used in the user script */
+/* TODO: Make a transpiler to turn this into the compact form */
+
+.chart {
+        --caption-area: 1.5rem;
+        --footer-area: 1.5rem;
+        --ui-colour: #eee;
+
+        background-color: transparent;
+        box-sizing: border-box;
+        container-type: inline-size;
+        display: block;
+
+        & * { box-sizing: border-box; }
+
+        table {
+            display: grid;
+            grid-template-rows: var(--caption-area) minmax(0, 1fr) var(--footer-area);
+            height: 100%;
+        }
+
+        caption {
+            grid-area: 1 / 1 / 2 / 2;
+            display: block;
+            font-size: 1rem;
+        }
+
+        thead {
+            align-items: end;
+            display: grid;
+            grid-area: 1 / 1 / 3 / 2;
+            grid-auto-rows: minmax(0, 1fr);
+            grid-template-rows: var(--caption-area);
+
+            tr {
+                display: contents;
+            }
+
+            th {
+                border-block-end: 1px solid var(--ui-colour);
+                display: inline grid;
+                font-size: 0.75rem;
+                text-align: start;
+            }
+        }
+
+        tbody {
+            container-type: size;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(0, 1fr);
+            grid-area: 2 / 1 / 4 / 2;
+            padding-inline: 1.5rem 0;
+
+        tr {
+            align-items: end;
+            display: grid;
+            grid-template-rows: 1fr var(--footer-area);
+        }
+
+        tr:hover {
+            th {
+                display: inline grid;
+            }
+
+            .wtruf-col {
+                background-color: ${WHITE_TRUFFLE_OPTIONS.HOVER_BAR_COLOUR};
+            }
+
+            .btruf-col {
+                background-color: ${BLACK_TRUFFLE_OPTIONS.HOVER_BAR_COLOUR};
+            }
+        }
+
+        th {
+            border-block-start: 2px solid var(--ui-colour);
+            display: none;
+            font-size: 1rem;
+            grid-area: 2 / 1 / 3 / 2;
+            height: var(--footer-area);
+            min-width: 0;
+            overflow: visible;
+            place-content: center;
+            text-align: center;
+        }
+
+        td {
+            grid-area: 1 / 1 / 2 / 2;
+        }
+    }
+}
+
+.wtruf-col {
+    background-color: ${WHITE_TRUFFLE_OPTIONS.IDLE_BAR_COLOUR};
+}
+
+.btruf-col {
+    background-color: ${BLACK_TRUFFLE_OPTIONS.IDLE_BAR_COLOUR};
+}
